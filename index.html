@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decide — Decision Eliminator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="background">
+    <div class="blob one"></div>
+    <div class="blob two"></div>
+    <div class="blob three"></div>
+</div>
+
+<nav class="navbar">
+    <div class="logo" onclick="showPage('home')">
+        Decide<span>.</span>
+    </div>
+
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+
+    <div class="nav-links" id="navLinks">
+        <button class="nav-btn active" data-page="home" onclick="showPage('home')">Home</button>
+        <button class="nav-btn" data-page="create" onclick="showPage('create')">New Decision</button>
+        <button class="nav-btn" data-page="history" onclick="showPage('history')">History</button>
+        <button class="nav-btn" data-page="insights" onclick="showPage('insights')">Insights</button>
+    </div>
+</nav>
+
+<section class="page active" id="home">
+    <div class="hero">
+        <div class="hero-content">
+            <div class="badge">✦ Your personal decision assistant</div>
+            <h1>
+                Stop overthinking.<br>
+                <span class="gradient-text">Start deciding.</span>
+            </h1>
+            <p>
+                Too many choices? Decide eliminates unsuitable options, compares what remains and gives you a recommendation based on what actually matters to you.
+            </p>
+            <div class="hero-buttons">
+                <button class="primary-btn" onclick="showPage('create')">Make a Decision →</button>
+                <button class="secondary-btn" onclick="showPage('insights')">View My Insights</button>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="choice-card one">🍕 Pizza</div>
+            <div class="choice-card two">🥗 Salad</div>
+            <div class="choice-card three">🍜 Noodles</div>
+            <div class="choice-card four">❌ Eliminated</div>
+            <div class="decision-orb">?</div>
+        </div>
+    </div>
+</section>
+
+<section class="page" id="create">
+    <div class="section-title">
+        <h2>Create a decision</h2>
+        <p>Tell Decide what you're trying to choose.</p>
+    </div>
+
+    <div class="create-grid">
+        <div class="card">
+            <div class="input-group">
+                <label>What are you deciding?</label>
+                <input id="decisionQuestion" type="text" placeholder="What should I eat tonight?">
+            </div>
+
+            <div class="input-group">
+                <label>Category</label>
+                <select id="category">
+                    <option>Food</option>
+                    <option>Study</option>
+                    <option>Shopping</option>
+                    <option>Travel</option>
+                    <option>Entertainment</option>
+                    <option>Career</option>
+                    <option>Other</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Describe your situation</label>
+                <textarea id="description" placeholder="Optional..."></textarea>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="input-group">
+                <label>Your options</label>
+                <div class="option-list" id="optionList">
+                    <div class="option-row">
+                        <input class="option-input" placeholder="Option 1">
+                        <button class="remove-option" onclick="removeOption(this)">×</button>
+                    </div>
+
+                    <div class="option-row">
+                        <input class="option-input" placeholder="Option 2">
+                        <button class="remove-option" onclick="removeOption(this)">×</button>
+                    </div>
+                </div>
+
+                <button class="add-option" onclick="addOption()">+ Add another option</button>
+            </div>
+
+            <button class="primary-btn" style="width:100%" onclick="continueToPreferences()">Continue →</button>
+        </div>
+    </div>
+</section>
+
+<section class="page" id="preferences">
+    <div class="section-title">
+        <h2>What matters to you?</h2>
+        <p>Adjust the importance of each factor.</p>
+    </div>
+
+    <div class="card">
+        <div class="preference">
+            <div class="preference-header">
+                <strong>💰 Budget importance</strong>
+                <span id="budgetValue">50%</span>
+            </div>
+            <input type="range" id="budgetWeight" min="0" max="100" value="50" oninput="updateRange('budgetWeight','budgetValue')">
+        </div>
+
+        <div class="preference">
+            <div class="preference-header">
+                <strong>⏱️ Time importance</strong>
+                <span id="timeValue">50%</span>
+            </div>
+            <input type="range" id="timeWeight" min="0" max="100" value="50" oninput="updateRange('timeWeight','timeValue')">
+        </div>
+
+        <div class="preference">
+            <div class="preference-header">
+                <strong>❤️ Personal preference</strong>
+                <span id="preferenceValue">70%</span>
+            </div>
+            <input type="range" id="preferenceWeight" min="0" max="100" value="70" oninput="updateRange('preferenceWeight','preferenceValue')">
+        </div>
+
+        <div class="preference">
+            <div class="preference-header">
+                <strong>✨ What kind of choice do you want?</strong>
+            </div>
+
+            <div class="preference-cards">
+                <div class="preference-choice selected" onclick="selectPreference(this)">💸 Cheapest</div>
+                <div class="preference-choice" onclick="selectPreference(this)">⚡ Fastest</div>
+                <div class="preference-choice" onclick="selectPreference(this)">❤️ My Favourite</div>
+            </div>
+        </div>
+
+        <button class="primary-btn" onclick="startElimination()">Start Eliminating ✨</button>
+    </div>
+</section>
+
+<section class="page" id="elimination">
+    <div class="elimination-box">
+        <div class="section-title">
+            <h2>Eliminating choices...</h2>
+            <p id="eliminationText">Analyzing your options.</p>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress" id="progressBar"></div>
+        </div>
+
+        <div class="card elimination-card">
+            <div class="status">Checking option</div>
+            <div class="current-option" id="currentOption">...</div>
+            <div class="status" id="reason">Comparing your preferences...</div>
+        </div>
+    </div>
+</section>
+
+<section class="page" id="result">
+    <div class="result-wrapper">
+        <div class="section-title">
+            <h2>The decision is...</h2>
+            <p>After comparing your options, we found your best match.</p>
+        </div>
+
+        <div class="card">
+            <div class="winner" id="winner">✨</div>
+            <div class="score" id="winnerScore">Score: 0%</div>
+
+            <div class="reasons">
+                <div class="reason">
+                    💗 <strong>Preference match:</strong>
+                    <span id="reasonPreference">High</span>
+                </div>
+
+                <div class="reason">
+                    💰 <strong>Budget:</strong>
+                    <span id="reasonBudget">Good</span>
+                </div>
+
+                <div class="reason">
+                    ⚡ <strong>Overall:</strong>
+                    <span id="reasonOverall">Best match</span>
+                </div>
+            </div>
+
+            <div class="hero-buttons" style="justify-content:center">
+                <button class="primary-btn" onclick="showPage('create')">Decide Again</button>
+                <button class="secondary-btn" onclick="showPage('history')">View History</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="page" id="history">
+    <div class="section-title">
+        <h2>Your decisions</h2>
+        <p>Decide remembers your previous choices.</p>
+    </div>
+
+    <div class="history-list" id="historyList"></div>
+
+    <button class="secondary-btn" style="margin-top:20px" onclick="clearHistory()">Clear History</button>
+</section>
+
+<section class="page" id="insights">
+    <div class="section-title">
+        <h2>Your decision personality</h2>
+        <p>Your choices help Decide understand your preferences.</p>
+    </div>
+
+    <div class="insight-grid">
+        <div class="card stat-card">
+            <div class="stat-number" id="totalDecisions">0</div>
+            <div class="stat-label">Decisions made</div>
+        </div>
+
+        <div class="card stat-card">
+            <div class="stat-number" id="favoriteCategory">—</div>
+            <div class="stat-label">Favourite category</div>
+        </div>
+
+        <div class="card stat-card">
+            <div class="stat-number" id="favoriteChoice">—</div>
+            <div class="stat-label">Most chosen option</div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="card">
+        <h3>🧠 Your recommendation profile</h3>
+        <p style="color:var(--muted);margin-top:8px">
+            This is where our future weighted recommendation system will learn from your choices.
+        </p>
+
+        <br>
+
+        <div>
+            <strong>Preference consistency</strong>
+            <div class="bar-container">
+                <div class="bar" id="preferenceBar" style="width:0%"></div>
+            </div>
+        </div>
+
+        <br>
+
+        <div>
+            <strong>Decision confidence</strong>
+            <div class="bar-container">
+                <div class="bar" id="confidenceBar" style="width:0%"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="toast" id="toast">Saved!</div>
+
+<script src="script.js"></script>
+</body>
+</html>
